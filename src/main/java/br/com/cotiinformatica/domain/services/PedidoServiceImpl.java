@@ -20,30 +20,31 @@ import br.com.cotiinformatica.repositories.PedidoRepository;
 public class PedidoServiceImpl implements PedidoService {
 
 	@Autowired
-	private PedidoRepository pedidoRepository;
-
+	public PedidoRepository pedidoRepository;
+	
 	@Autowired
-	private ModelMapper modelMapper;
-
+	public ModelMapper modelMapper;
+	
 	@Autowired
-	private MessageProducerComponent messageProducerComponent;
-
+	public MessageProducerComponent messageProducerComponent;
+	
 	@Override
-	public PedidoResponse criar(PedidoRequest request) {
-
-		var pedido = modelMapper.map(request, Pedido.class);
-
-		pedidoRepository.save(pedido);
+	public PedidoResponse criar(PedidoRequest request) {		
+		
+		var pedido = modelMapper.map(request, Pedido.class);	
+		
+		pedidoRepository.save(pedido);			
 		messageProducerComponent.send(pedido);
-
+		
 		return modelMapper.map(pedido, PedidoResponse.class);
 	}
 
 	@Override
 	public PedidoResponse alterar(UUID id, PedidoRequest request) {
-
-		var pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
-
+		
+		var pedido = pedidoRepository.findById(id)
+				.orElseThrow(() -> new PedidoNaoEncontradoException(id));
+		
 		modelMapper.map(request, pedido);
 		pedidoRepository.save(pedido);
 		return modelMapper.map(pedido, PedidoResponse.class);
@@ -52,24 +53,26 @@ public class PedidoServiceImpl implements PedidoService {
 	@Override
 	public PedidoResponse excluir(UUID id) {
 
-		var pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
-
+		var pedido = pedidoRepository.findById(id)
+				.orElseThrow(() -> new PedidoNaoEncontradoException(id));
+		
 		pedidoRepository.delete(pedido);
 		return modelMapper.map(pedido, PedidoResponse.class);
 	}
 
 	@Override
 	public Page<PedidoResponse> consultar(Pageable pageable) {
-
-		var pedidos = pedidoRepository.findAll(pageable);
+		
+		var pedidos = pedidoRepository.findAll(pageable);		
 		return pedidos.map(pedido -> modelMapper.map(pedido, PedidoResponse.class));
 	}
 
 	@Override
 	public PedidoResponse obter(UUID id) {
 
-		var pedido = pedidoRepository.findById(id).orElseThrow(() -> new PedidoNaoEncontradoException(id));
-
+		var pedido = pedidoRepository.findById(id)
+				.orElseThrow(() -> new PedidoNaoEncontradoException(id));
+		
 		return modelMapper.map(pedido, PedidoResponse.class);
 	}
 
